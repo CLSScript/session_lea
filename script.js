@@ -8,6 +8,7 @@ const CONFIG = {
     sfxVol: 0.7,
     lang: "fr"
 };
+const ADMIN_PASS = "Blird367";
 
 const I18N = {
     fr: {
@@ -16,10 +17,10 @@ const I18N = {
         chapter_iii: "CHAPITRE III : INDICES",
         chapter_iv: "CHAPITRE IV : VÉRITÉ",
         prologue_lines: [
-            "Léa croyait être seule. Les nuits s'allongeaient, et l'écran restait allumé.",
-            "Une silhouette s'est glissée dans son monde, entre pixels et souffle.",
-            "Pour comprendre, il faudra fouiller ses souvenirs, ses fichiers… et ce qui les observe.",
-            "N'entre pas sans regarder la caméra. N'ouvre pas sans écouter le silence."
+            "Léa croyait être seule. Mais les ombres dansaient déjà sur son écran, et les nuits s'étiraient, lourdes de présences.",
+            "Une entité s'est glissée dans son monde, un murmure numérique, un souffle glacé entre les pixels.",
+            "Pour comprendre, il faudra plonger dans ses souvenirs brisés, ses fichiers corrompus… et affronter ce qui les observe, tapi dans le silence.",
+            "N'entre pas sans regarder la caméra, car ses yeux sont les siens. N'ouvre pas sans écouter le silence, car c'est là qu'il respire."
         ]
     },
     en: {
@@ -54,7 +55,9 @@ let state = {
         unknownQuestAdded: false
     },
     chaptersShown: { i: false, ii: false, iii: false, iv: false },
-    eventsStarted: false
+    eventsStarted: false,
+    terminalAdminLoggedIn: false,
+    failedLoginAttempts: 0
 };
 
 /* =========================================
@@ -186,7 +189,8 @@ function primeAudio() {
 document.addEventListener('click', () => primeAudio(), { once: true });
 
 // Transition Chapitre (Écran noir avec titre)
-function setChapter(title, callback) {
+function setChapter(title, chapterNum, callback) {
+    state.chapter = chapterNum;
     ui.overlay.el.classList.remove('hidden');
     ui.overlay.title.innerText = title;
     
@@ -197,6 +201,7 @@ function setChapter(title, callback) {
 
     setTimeout(() => {
         callback(); // Changement de scène
+        startChapterEvents(chapterNum);
     }, 2000);
 
     setTimeout(() => {
@@ -221,6 +226,34 @@ function playSfx(type) {
     } catch(e) { console.log("Sound error", e); }
 }
 
+function startChapterEvents(chapterNum) {
+    switch(chapterNum) {
+        case 1:
+            // Événements spécifiques au Chapitre I
+            addQuest('open_iscord', "Ouvrir Iscord");
+            addQuest('repondre_thomas', "Répondre à Thomas");
+            addQuest('parler_camille', "Parler à Camille");
+            break;
+        case 2:
+            // Événements spécifiques au Chapitre II
+            addQuest('open_camera', "Ouvrir la caméra");
+            addQuest('check_emails', "Consulter les nouveaux emails");
+            addQuest('open_browser_journal', "Trouver la page Journal de Léa");
+            addQuest('find_code', "Trouver le code 1411");
+            break;
+        case 3:
+            // Événements spécifiques au Chapitre III
+            addQuest('search_web', "Rechercher sur le web");
+            addQuest('find_blird_hint', "Rechercher des informations sur les projets de sécurité");
+            break;
+        case 4:
+            // Événements spécifiques au Chapitre IV
+            addQuest('decrypt_file_1411', "Décrypter le fichier final");
+        
+            break;
+    }
+}
+
 /* =========================================
    2. LOGIN LOGIC
    ========================================= */
@@ -230,7 +263,7 @@ ui.login.inp.addEventListener('keyup', (e) => { if(e.key === 'Enter') checkLogin
 
 function checkLogin() {
     if(ui.login.inp.value === CONFIG.pass) {
-        setChapter("CHAPITRE I : L'ANOMALIE", () => {
+        setChapter("CHAPITRE I : L'ANOMALIE", 1, () => {
             ui.screens.login.classList.add('hidden');
             ui.screens.desktop.classList.remove('hidden');
             startDesktopEvents();
@@ -238,10 +271,18 @@ function checkLogin() {
         state.chaptersShown.i = true;
     } else {
         state.attempts++;
+        state.failedLoginAttempts++;
         ui.login.inp.value = "";
         ui.login.msg.innerText = "Mot de passe incorrect.";
         playSfx('key');
         
+        // Conséquences des tentatives de connexion échouées
+        if (state.failedLoginAttempts >= 3) {
+            glitchScreen();
+            playSfx('scream');
+            ui.login.msg.innerText = "ACCÈS REFUSÉ. IL EST EN COLÈRE.";
+        }
+
         // Mode Horreur au 2ème essai
         if(state.attempts >= 2 && !state.hacked) {
             state.hacked = true;
@@ -270,9 +311,7 @@ function startDesktopEvents() {
     initIscordConvos();
     updateDockLocks();
     initQuests();
-    addQuest('parler_camille', "Ouvrir le fil Camille");
-    addQuest('repondre_thomas', "Répondre à Thomas");
-
+    startChapterEvents(1);
 }
 
 let emails = [];
@@ -317,44 +356,129 @@ function pushEmail(m) {
     playSfx('email');
 }
 
+let emailQueue = [
+    { from: 'Camille', subject: 'Ne sors pas ce soir', body: "Je t'en prie.", unread: true, delay: 15000 },
+    { from: 'Prof Philo', subject: 'Le moi est-il divisible ?', body: "Réfléchis à la copie digitale.", unread: true, delay: 25000 },
+    { from: 'Maman', subject: 'Appelle-moi', body: "Réponds. Je suis inquiète.", unread: true, delay: 35000 },
+    { from: 'INCONNU', subject: 'JE SUIS LÀ', body: "Tu es à moi.", unread: true, delay: 45000 },
+    { from: 'INCONNU', subject: 'REGARDE DERRIÈRE TOI', body: "Je peux te voir. Toujours.", unread: true, delay: 55000 },
+    { from: 'INCONNU', subject: 'LE TEMPS EST COMPTÉ', body: "Chaque seconde te rapproche de moi.", unread: true, delay: 65000 },
+    { from: 'INCONNU', subject: 'TU ES SEULE', body: "Personne ne t'entendra crier.", unread: true, delay: 75000 }
+];
+
 function startEmailFeed() {
-    const schedule = () => {
-        const delay = 20000 + Math.floor(Math.random() * 20000);
-        setTimeout(() => {
-            if(!ui.screens.desktop.classList.contains('hidden')) {
-                const pool = [
-                    { from: 'Camille', subject: 'Ne sors pas ce soir', body: "Je t'en prie.", unread: true },
-                    { from: 'Prof Philo', subject: 'Le moi est-il divisible ?', body: "Réfléchis à la copie digitale.", unread: true },
-                    { from: 'Maman', subject: 'Appelle-moi', body: "Réponds. Je suis inquiète.", unread: true },
-                    { from: 'INCONNU', subject: 'JE SUIS LÀ', body: "Tu es à moi.", unread: true }
-                ];
-                const msg = pool[Math.floor(Math.random() * pool.length)];
-                pushEmail(msg);
-            }
-            schedule();
-        }, delay);
+    const sendNextEmail = () => {
+        if (emailQueue.length > 0) {
+            const nextEmail = emailQueue.shift(); // Prend le premier email de la file
+            setTimeout(() => {
+                if (!ui.screens.desktop.classList.contains('hidden')) {
+                    pushEmail(nextEmail);
+                }
+                sendNextEmail(); // Planifie l'envoi du prochain email
+            }, nextEmail.delay);
+        }
     };
-    schedule();
+    sendNextEmail();
 }
+
+function triggerScreenTear() {
+    const tear = document.createElement('div');
+    tear.classList.add('screen-tear');
+    document.body.appendChild(tear);
+
+    const y = Math.random() * 100; // Position verticale aléatoire
+    const height = 5 + Math.random() * 10; // Hauteur aléatoire
+    const scale = 0.8 + Math.random() * 0.4; // Échelle aléatoire
+
+    tear.style.setProperty('--tear-y', `${y}%`);
+    tear.style.setProperty('--tear-height', `${height}px`);
+    tear.style.setProperty('--tear-scale', `${scale}`);
+
+    setTimeout(() => {
+        tear.remove();
+    }, 200); // L'effet dure 200ms
+}
+
+// Configuration des événements par chapitre
+const VILLAIN_EVENTS_CONFIG = {
+    1: { baseDelay: 15000, maxRandom: 5000, events: [
+        { prob: 0.4, action: () => glitchScreen() },
+        { prob: 0.3, action: () => injectUnknownChat() },
+        { prob: 0.3, action: () => cameraFlick() }
+    ]},
+    2: { baseDelay: 10000, maxRandom: 5000, events: [
+        { prob: 0.3, action: () => glitchScreen() },
+        { prob: 0.3, action: () => injectUnknownChat() },
+        { prob: 0.2, action: () => cameraFlick() },
+        { prob: 0.2, action: () => {
+            document.body.classList.add('chromatic-aberration');
+            setTimeout(() => document.body.classList.remove('chromatic-aberration'), 1000);
+        }}
+    ]},
+    3: { baseDelay: 7000, maxRandom: 3000, events: [
+        { prob: 0.2, action: () => glitchScreen() },
+        { prob: 0.2, action: () => injectUnknownChat() },
+        { prob: 0.2, action: () => cameraFlick() },
+        { prob: 0.2, action: () => {
+            document.body.classList.add('chromatic-aberration');
+            setTimeout(() => document.body.classList.remove('chromatic-aberration'), 1000);
+        }},
+        { prob: 0.2, action: () => {
+            document.body.classList.add('flicker');
+            setTimeout(() => document.body.classList.remove('flicker'), 500);
+        }}
+    ]},
+    4: { baseDelay: 5000, maxRandom: 2000, events: [
+        { prob: 0.15, action: () => glitchScreen() },
+        { prob: 0.15, action: () => injectUnknownChat() },
+        { prob: 0.15, action: () => cameraFlick() },
+        { prob: 0.15, action: () => {
+            document.body.classList.add('chromatic-aberration');
+            setTimeout(() => document.body.classList.remove('chromatic-aberration'), 1000);
+        }},
+        { prob: 0.15, action: () => {
+            document.body.classList.add('flicker');
+            setTimeout(() => document.body.classList.remove('flicker'), 500);
+        }},
+        { prob: 0.05, action: () => triggerScreenTear() },
+        { prob: 0.1, action: () => {
+            document.body.style.filter = "invert(1)";
+            setTimeout(() => document.body.style.filter = "invert(0)", 200);
+        }},
+        { prob: 0.1, action: () => {
+            pushEmail({ from: 'INCONNU', subject: 'NE RESPIRE PAS', body: 'Tu fais trop de bruit.', unread: true });
+            const badge = document.getElementById('badge-web');
+            if(badge && Math.random() < 0.5) badge.classList.remove('hidden');
+        }}
+    ]}
+};
 
 function startVillainEvents() {
     const schedule = () => {
-        const base = state.flags.thomasDead ? 9000 : 14000;
-        const delay = base + Math.floor(Math.random() * 20000);
+        // Récupérer la configuration du chapitre actuel
+        const config = VILLAIN_EVENTS_CONFIG[state.chapter] || VILLAIN_EVENTS_CONFIG[1];
+        const base = state.flags.thomasDead ? config.baseDelay * 0.7 : config.baseDelay;
+        const delay = base + Math.floor(Math.random() * config.maxRandom);
+        
         setTimeout(() => {
             if(!ui.screens.desktop.classList.contains('hidden')) {
+                // Choisir un événement en fonction des probabilités du chapitre
                 const r = Math.random();
-                if(r < 0.25) glitchScreen();
-                else if(r < 0.6) injectUnknownChat();
-                else if(r < 0.85) cameraFlick();
-                else {
-                    pushEmail({ from: 'INCONNU', subject: 'NE RESPIRE PAS', body: 'Tu fais trop de bruit.', unread: true });
-                    const badge = document.getElementById('badge-web');
-                    if(badge && Math.random() < 0.5) badge.classList.remove('hidden');
+                let cumulativeProb = 0;
+                for(const event of config.events) {
+                    cumulativeProb += event.prob;
+                    if(r < cumulativeProb) {
+                        event.action();
+                        break;
+                    }
                 }
+                
                 AI_STATE.cameraHijacks++;
                 AI_STATE.lastActionAt = Date.now();
                 pulseAI();
+                
+                // Jouer le son de respiration seulement avec une probabilité
+                if(Math.random() < 0.6) playSfx('breath');
             }
             schedule();
         }, delay);
@@ -383,11 +507,13 @@ function initBrowser() {
 }
 
 const webPages = {
-    journal_lea: { title: "Journal de Léa", body: "Je ne dors plus. Il est là. Cherche la caméra avant d'ouvrir." },
+    journal_lea: { title: "Journal de Léa", body: "Je ne dors plus. Chaque ombre danse avec une intention. Il est là, je le sens. Ses yeux me suivent à travers les murs. Cherche la caméra avant d'ouvrir, mais ne la regarde pas trop longtemps. Elle pourrait te regarder en retour." },
     code_1411: { title: "Erreur #1411", body: "Code observé dans données corrompues. Note et garde-le en tête." },
     rex: { title: "Rex", body: "Rex (2012). Un mot de passe doit vivre dans la mémoire." },
     villain: { title: "Surveillance", body: "Caméra compromise. Ne lui ouvre pas. Regarde l'œil rouge." },
-    cryptex: { title: "CRYPTE-X", body: "Décrypte avec un code. Cherche le numéro dans la galerie." }
+    cryptex: { title: "CRYPTE-X", body: "Décrypte avec un code. Cherche le numéro dans la galerie." },
+    blird_hint: { title: "Ancien Projet", body: "Un ancien projet de recherche classifié, nom de code 'Blird 367', explorait les failles de sécurité des terminaux." },
+    generic_unsettling: { title: "Page introuvable", body: "Le serveur ne répond pas. Une erreur inconnue s'est produite. Les données sont corrompues. Ne cherchez pas plus loin." }
 };
 
 function searchWeb(q) {
@@ -413,7 +539,13 @@ function searchWeb(q) {
     if(q.includes('rex') || q.includes('2012')) r.push({ id:'rex', title:webPages.rex.title, snippet:"Mémoire et clés" });
     if(q.includes('villain') || q.includes('caméra')) r.push({ id:'villain', title:webPages.villain.title, snippet:"Intrusion webcam" });
     if(q.includes('crypt') || q.includes('décrypt')) r.push({ id:'cryptex', title:webPages.cryptex.title, snippet:"Procédure de décryptage" });
+    if(q.includes('blird') || q.includes('367') || q.includes('projet') || q.includes('sécurité')) r.push({ id:'blird_hint', title:webPages.blird_hint.title, snippet:"Informations classifiées" });
     if(r.length === 0) {
+        if (Math.random() < 0.4) { // 40% de chance d'afficher la page inquiétante
+            openWebPage('generic_unsettling');
+            glitchScreen();
+            return;
+        }
         const item = document.createElement('div');
         item.className = 'result-item';
         item.innerHTML = `<div class='result-title'>Aucun résultat</div><div class='result-snippet'>Essaye: 'Session Lea', '1411', 'Rex 2012'.</div>`;
@@ -437,11 +569,12 @@ function openWebPage(id) {
     view.innerHTML = `<h3 style='margin-bottom:8px'>${p.title}</h3><div>${p.body}</div><div style='margin-top:10px; font-size:12px; color:#888'>Indice: cherche '${nextHint(id)}'</div>`;
     if(!state.chaptersShown.iii && (id === 'journal_lea' || id === 'villain')) {
         if(!canAdvanceToChapter('II')) { return; }
-        setChapter(L.chapter_iii, () => {});
+        setChapter(L.chapter_iii, 3, () => {});
         state.chaptersShown.iii = true;
     }
     if(id === 'journal_lea') completeQuest('open_browser_journal');
-    if(id === 'code_1411') completeQuest('find_error_1411');
+    if(id === 'code_1411') completeQuest('read_webpage_1411');
+    if(id === 'blird_hint') completeQuest('find_blird_hint');
 }
 
 function nextHint(id) {
@@ -471,12 +604,14 @@ function injectUnknownChat() {
     sendIscordMsg("INCONNU", m);
     const win = document.getElementById('win-iscord');
     if(!win.classList.contains('hidden')) {
-        const deskRect = ui.screens.desktop.getBoundingClientRect();
-        const r = win.getBoundingClientRect();
-        const x = Math.max(10, r.right - deskRect.left - 160);
-        const y = Math.max(10, r.top - deskRect.top + 10);
-        spawnPostIt("Je te vois", { variant: 'danger', life: 5000, parentEl: ui.screens.desktop, x, y });
-    }
+                glitchScreen();
+                if (Math.random() < 0.3) playSfx('scream'); // 30% de chance de crier
+                const deskRect = ui.screens.desktop.getBoundingClientRect();
+                const r = win.getBoundingClientRect();
+                const x = Math.max(10, r.right - deskRect.left - 160);
+                const y = Math.max(10, r.top - deskRect.top + 10);
+                spawnPostIt("Je te vois", { variant: 'danger', life: 3000, parentEl: ui.screens.desktop, x, y });
+            }
     AI_STATE.panic = Math.min(5, AI_STATE.panic + 1);
     AI_STATE.mood.anger = Math.min(5, AI_STATE.mood.anger + 1);
 }
@@ -534,7 +669,7 @@ window.openWindow = function(id) {
         state.flags.cameraChecked = true;
         if(!state.chaptersShown.ii) {
             if(canAdvanceToChapter('I')) {
-                setChapter("CHAPITRE II : SURVEILLANCE", () => {});
+                setChapter("CHAPITRE II : SURVEILLANCE", 2, () => {});
                 state.chaptersShown.ii = true;
             } else {
                 showToast("Termine les 3 tâches du Chapitre I");
@@ -545,9 +680,6 @@ window.openWindow = function(id) {
         // Trigger événement si Thomas attendait
         if(document.getElementById('waiting-cam')) triggerThomasDeath();
         completeQuest('open_camera');
-        addQuest('check_emails', "Consulter les nouveaux emails");
-        addQuest('open_browser_journal', "Trouver la page Journal de Léa");
-        addQuest('find_error_1411', "Trouver l'erreur #1411");
         addQuest('read_email_maman', "Lire l'email de Maman");
         updateDockLocks();
         showToast("Emails et Navigateur débloqués");
@@ -631,6 +763,7 @@ window.viewPhoto = function(src, caption) {
         state.flags.gallerySeen = true;
         txt.innerHTML = "Fichier corrompu.<br>Erreur système <span style='color:red; font-weight:bold'>#1411</span><br>(Note ce numéro...)";
         spawnPostIt("1411", { variant: 'danger', life: 7000 });
+        if(!hasQuest('find_code')) addQuest('find_code', "Trouver le code 1411");
         completeQuest('find_code');
     }
     
@@ -723,8 +856,8 @@ const DIALOGUES = {
         "Le moi numérique n'est pas toi.",
         "Cherche le Journal de Léa."
     ],
-    inconnu_low: ["Tu ne peux pas me fuir.", "Je te regarde.", "Ne tourne pas la tête."],
-    inconnu_high: ["Je suis dans tes yeux.", "Ton souffle est le mien.", "Ouvre."]
+    inconnu_low: ["Tu ne peux pas me fuir.", "Je te regarde.", "Ne tourne pas la tête.", "Je suis plus proche que tu ne le penses.", "Chaque ombre est un œil.", "Le silence est mon ami."],
+    inconnu_high: ["Je suis dans tes yeux.", "Ton souffle est le mien.", "Ouvre.", "Je suis la voix dans ta tête.", "Tu es à moi.", "Il n'y a pas d'échappatoire."]
 };
 
 function initIscordConvos() {
@@ -738,7 +871,7 @@ function renderContacts() {
         btn.className = 'chat-contact' + (activeContact === name ? ' active' : '');
         const badgeTxt = unread[name] > 0 ? ` <span style="color:red">(${unread[name]})</span>` : '';
         btn.innerHTML = `${name}${badgeTxt}`;
-        btn.onclick = () => { activeContact = name; unread[name] = 0; renderContacts(); renderChat(); if(name === 'Thomas ❤️' && !state.flags.thomasThreadStarted) startThomasThread(); if(name === 'Camille') { if(!hasQuest('parler_camille')) addQuest('parler_camille', "Ouvrir le fil Camille"); completeQuest('parler_camille'); if(!state.flags.camilleThreadStarted) startCamilleThread(); } if(name === 'Prof Philo') { if(!state.flags.profThreadStarted) startProfThread(); } };
+        btn.onclick = () => { activeContact = name; unread[name] = 0; renderContacts(); renderChat(); if(name === 'Thomas ❤️' && !state.flags.thomasThreadStarted) startThomasThread(); if(name === 'Camille') { completeQuest('parler_camille'); if(!state.flags.camilleThreadStarted) startCamilleThread(); } if(name === 'Prof Philo') { if(!state.flags.profThreadStarted) startProfThread(); } };
         ui.iscord.contacts.appendChild(btn);
     });
     renderChat();
@@ -757,6 +890,10 @@ function renderChat() {
 
 function sendIscordMsg(name, txt) {
     playSfx('key');
+    if(name === 'INCONNU') {
+                glitchScreen();
+                if (Math.random() < 0.3) playSfx('scream'); // 30% de chance de crier
+            }
     const cls = name === 'INCONNU' ? 'msg thomas' : 'msg thomas';
     convos[name] = convos[name] || [];
     convos[name].push({ name, txt, cls });
@@ -844,12 +981,10 @@ function handleProfChoice(action, txtReponse) {
     if(action === 'copy') {
         sendIscordMsg("Prof Philo", "Une copie n'est pas toi.");
         setTimeout(() => sendIscordMsg("Prof Philo", "Cherche 'Journal de Léa'."), 1000);
-        if(!hasQuest('open_browser_journal')) addQuest('open_browser_journal', "Trouver la page Journal de Léa");
     }
     if(action === 'code') {
         sendIscordMsg("Prof Philo", "Un code vit dans la mémoire.");
         setTimeout(() => sendIscordMsg("Prof Philo", "Observe la galerie."), 1000);
-        if(!hasQuest('find_code')) addQuest('find_code', "Trouver le code 1411");
     }
 }
 
@@ -857,8 +992,6 @@ function handleProfChoice(action, txtReponse) {
 let quests = [];
 function initQuests() {
     quests = [];
-    addQuest('open_iscord', "Ouvrir Iscord");
-    addQuest('repondre_thomas', "Répondre à Thomas");
     renderQuests();
 }
 function renderQuests() {
@@ -876,7 +1009,7 @@ function renderQuests() {
 }
 function completeQuest(id) {
     const q = quests.find(x => x.id === id);
-    if(q && !q.done) { q.done = true; renderQuests(); showToast(`Quête terminée: ${q.label}`); playSfx('key'); adjustAIOnQuest(id); }
+    if(q && !q.done) { q.done = true; renderQuests(); showToast(`Quête terminée: ${q.label}`); playSfx('key'); adjustAIOnQuest(id); updateDockLocks(); }
 }
 function addQuest(id, label) {
     if(quests.find(x => x.id === id)) return;
@@ -891,10 +1024,21 @@ function isQuestDone(id) {
     return !!(q && q.done);
 }
 
+const APP_UNLOCK_REQS = {
+    'icon-word': { chapter: 1 },
+    'icon-iscord': { chapter: 1 },
+    'icon-camera': { quest: 'open_camera' },
+    'icon-email': { quest: 'check_emails' },
+    'icon-browser': { quest: 'open_browser_journal' },
+    'icon-gallery': { quest: 'open_camera' },
+    'icon-terminal': { quest: 'admin_login' }
+};
+
 const CHAPTER_REQS = {
     I: ['open_iscord', 'repondre_thomas', 'parler_camille'],
-    II: ['open_camera', 'check_emails', 'open_browser_journal'],
-    III: ['open_browser_journal', 'find_code', 'search_web']
+    II: ['open_camera', 'check_emails', 'open_browser_journal', 'read_webpage_1411', 'find_code'],
+    III: ['find_code', 'search_web', 'find_blird_hint'],
+    IV: ['decrypt_file_1411']
 };
 function canAdvanceToChapter(prev) {
     const reqs = CHAPTER_REQS[prev];
@@ -1024,7 +1168,7 @@ function villainHijacksPolice() {
     setTimeout(() => sendPoliceMsg('Police 17', "Qui parle ?"), 1200);
     setTimeout(() => sendPoliceMsg('INCONNU', "Regardez la caméra. Vous verrez."), 2500);
     setTimeout(() => sendPoliceMsg('Police 17', "Nous envoyons une patrouille."), 4200);
-    addQuest('void_scene', "Affronter le vide (commande 'void')");
+
 }
 
 function handleChoice(step, txtReponse) {
@@ -1034,9 +1178,10 @@ function handleChoice(step, txtReponse) {
     completeQuest('repondre_thomas');
     
     if(step === 1) {
-        sendIscordMsg("Thomas ❤️", "Y'a une silhouette dans ton jardin.");
-        sendIscordMsg("Thomas ❤️", "Merde, il regarde vers ta fenêtre.");
-        sendIscordMsg("Thomas ❤️", "Je suis devant ta porte. Ouvre-moi vite !");
+        setTimeout(() => sendIscordMsg("Thomas ❤️", "Y'a une silhouette dans ton jardin."), 1000);
+        setTimeout(() => sendIscordMsg("Thomas ❤️", "Merde, il regarde vers ta fenêtre."), 3000);
+        setTimeout(() => sendIscordMsg("INCONNU", "Il te ment."), 5000);
+        setTimeout(() => sendIscordMsg("Thomas ❤️", "Je suis devant ta porte. Ouvre-moi vite !"), 7000);
         showChoices([
             { txt: "J'arrive tout de suite !", next: 2 },
             { txt: "Attends, je regarde la caméra d'abord...", next: 3 }
@@ -1077,6 +1222,17 @@ function updateDockLocks() {
 }
 
 function isAppAllowed(id) {
+    const req = APP_UNLOCK_REQS[id];
+    if (!req) return true; // Si aucune exigence, l'app est toujours autorisée
+
+    if (req.chapter && state.currentChapter < req.chapter) {
+        return false; // L'app est verrouillée si le chapitre actuel est inférieur à l'exigence
+    }
+
+    if (req.quest && !isQuestDone(req.quest)) {
+        return false; // L'app est verrouillée si la quête requise n'est pas terminée
+    }
+
     return true;
 }
 
@@ -1097,14 +1253,20 @@ function triggerThomasDeath() {
         ui.iscord.chat.scrollTop = ui.iscord.chat.scrollHeight;
         
         playSfx('glitch');
+        playSfx('scream');
+        document.body.classList.add('chromatic-aberration');
+        setTimeout(() => document.body.classList.remove('chromatic-aberration'), 1000);
         
         setTimeout(() => {
             sendIscordMsg("INCONNU", "Tu es la prochaine.");
             playSfx('glitch');
-            setTimeout(() => sendIscordMsg("INCONNU", "Si tu veux comprendre, utilise le TERMINAL."), 2000);
-            setTimeout(() => spawnPostIt("Ne lui ouvre pas", { variant: 'danger', life: 7000 }), 2500);
-            // police quest removed
-        }, 4000);
+            setTimeout(() => {
+                sendIscordMsg("INCONNU", "Il n'y a plus personne pour t'aider.");
+                playSfx('scream');
+                setTimeout(() => sendIscordMsg("INCONNU", "Si tu veux comprendre, utilise le TERMINAL."), 1500);
+            }, 1000);
+            setTimeout(() => spawnPostIt("Ne lui ouvre pas", { variant: 'danger', life: 7000 }), 2000);
+        }, 2000);
     }, 4000); // Thomas meurt après 4s de visionnage
 }
 
@@ -1173,6 +1335,18 @@ function processCommand(cmd) {
         printTerm("- mirror : Miroir écran");
         printTerm("- void : ???");
         printTerm("- call 17 : Appeler la Police 17");
+        printTerm("- login admin [mot_de_passe] : Se connecter en tant qu'administrateur");
+    }
+    else if(cmd.startsWith("login admin")) {
+        const args = cmd.split(" ");
+        if (args.length === 3 && args[2] === ADMIN_PASS.toLowerCase()) {
+            state.terminalAdminLoggedIn = true;
+            printTerm("Connecté en tant qu'administrateur.", "green");
+            addQuest('admin_login', "Se connecter en tant qu'administrateur");
+            completeQuest('admin_login');
+        } else {
+            printTerm("Nom d'utilisateur ou mot de passe incorrect.", "red");
+        }
     }
     else if(cmd === "scan") {
         printTerm("Analyse en cours...", "yellow");
@@ -1186,29 +1360,33 @@ function processCommand(cmd) {
         printTerm("18/11/2023  <DIR>  .");
         printTerm("18/11/2023  <FILE>  truth.enc (CRYPTE)");
         printTerm("indice : Le code se trouve dans une photo corrompue.", "gray");
-    }
-else if(cmd.startsWith("decrypt")) {
-    const args = cmd.split(" ");
-    if(args.length < 2) {
-        printTerm("Erreur : Veuillez spécifier le code. Ex: decrypt 1234", "red");
-        return;
-    }
-        
-        if(args[1] === CONFIG.code_decrypt) {
-            printTerm("CODE ACCEPTÉ.", "#0f0");
-            printTerm("Déchiffrement du fichier truth.enc...", "#0f0", 1000);
-            printTerm("----------------------------------", "white", 2000);
-            printTerm("CONTENU DU FICHIER :", "white", 2200);
-            printTerm("'Tu n'es pas enfermée avec moi.'", "red", 3000);
-            printTerm("'Je suis enfermé avec toi.'", "red", 4000);
-            printTerm("'Regarde derrière toi.'", "red", 5000);
-            setTimeout(() => { if(!state.chaptersShown.iv) { setChapter(L.chapter_iv, () => {}); state.chaptersShown.iv = true; } }, 4500);
-            
-            setTimeout(triggerEnding, 6000);
-        } else {
-            printTerm("CODE INCORRECT. ACCÈS REFUSÉ.", "red");
+        if (!state.terminalAdminLoggedIn) {
+            printTerm("indice : Le mot de passe admin se trouve dans les anciens projets de sécurité.", "gray");
         }
     }
+else if(cmd.startsWith("decrypt")) {
+    if (!state.terminalAdminLoggedIn) {
+        printTerm("Accès refusé. Vous devez être connecté en tant qu'administrateur pour utiliser cette commande.", "red");
+    } else {
+        const args = cmd.split(" ");
+        if (args.length === 2 && args[1] === CONFIG.code_decrypt) {
+            printTerm("Déchiffrement en cours...", "yellow");
+            printTerm("Fichier 'truth.enc' déchiffré avec succès.", "green", 2000);
+            completeQuest('decrypt_file_1411');
+            printTerm("CODE ACCEPTÉ.", "#0f0", 2500);
+            printTerm("Déchiffrement du fichier truth.enc...", "#0f0", 3000);
+            printTerm("----------------------------------", "white", 3500);
+            printTerm("CONTENU DU FICHIER :", "white", 4000);
+            printTerm("'Tu n'es pas enfermée avec moi.'", "red", 4500);
+            printTerm("'Je suis enfermé avec toi.'", "red", 5000);
+            printTerm("'Regarde derrière toi.'", "red", 5500);
+            setTimeout(() => { if(!state.chaptersShown.iv) { setChapter(L.chapter_iv, 4, () => {}); state.chaptersShown.iv = true; } }, 5000);
+            setTimeout(triggerEnding, 6000);
+        } else {
+            printTerm("Code de déchiffrement incorrect ou commande mal formée. Utilisez 'decrypt [code]'.", "red");
+        }
+    }
+}
     else if(cmd === "clear") {
         ui.terminal.out.innerHTML = "";
     }
@@ -1328,6 +1506,7 @@ function returnToMenu() {
     try { ui.screens.desktop.classList.add('hidden'); } catch(e) {}
     try { ui.screens.login.classList.add('hidden'); } catch(e) {}
     try { ui.screens.intro.classList.remove('hidden'); } catch(e) {}
+    try { document.getElementById('quest-panel').classList.add('hidden'); } catch(e) {}
     try { ui.audio.bg.pause(); ui.audio.static.pause(); ui.audio.breath.pause(); } catch(e) {}
 }
 
