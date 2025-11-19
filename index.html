@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYSTEM_OS // SESSION LEA</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div id="screen-fx"></div>
+    <div id="noise"></div>
+    <div id="bg-net"></div>
+    <div id="bg-orbs"></div>
+    <div id="vignette"></div>
+    <div id="void-overlay" class="hidden">
+        <div class="void-cam-wrap">
+            <video id="void-video" src="asset/villain.mp4" loop muted playsinline></video>
+            <div id="blood-drops"></div>
+        </div>
+    </div>
+    
+    <div id="bsod" class="hidden">
+        <h1>:(</h1>
+        <p>Votre ordinateur a rencontré un problème et doit redémarrer.</p>
+        <p>CODE D'ARRÊT : CRITICAL_SOUL_FAILURE</p>
+        <br>
+        <p>Transfert des données vers le néant...</p>
+        <div class="loader">0% complet</div>
+    </div>
+
+    <div id="rsod" class="hidden">
+        <h1>!</h1>
+        <p>Votre système a été pris.</p>
+        <p>CODE D'ARRÊT : HOST_OVERRIDE</p>
+        <br>
+        <p>Regarde la caméra. Respire.</p>
+        <div class="loader">0% complet</div>
+    </div>
+    <div id="truth-overlay" class="hidden">
+        <div class="truth-content">
+            <div id="truth-lines"></div>
+        </div>
+    </div>
+
+    <div id="credits-overlay" class="hidden">
+        <div class="credits-content">
+            <h2 id="credits-title">SESSION_LEA</h2>
+            <div id="credits-summary"></div>
+            <div id="credits-list"></div>
+        </div>
+    </div>
+
+    <div id="chapter-overlay" class="hidden">
+        <h2 id="chapter-title">INITIALISATION</h2>
+    </div>
+
+    <div id="prologue-overlay" class="hidden">
+        <div class="prologue-box">
+            <p id="prologue-text"></p>
+        </div>
+    </div>
+
+    <audio id="bg-music" loop preload="auto"><source src="asset/sound/ambiance.mp3" type="audio/mpeg"></audio>
+    <audio id="sfx-key" preload="auto"><source src="asset/sound/notif.mp3" type="audio/mpeg"></audio>
+    <audio id="sfx-glitch" preload="auto"><source src="asset/sound/notif.mp3" type="audio/mpeg"></audio>
+    <audio id="sfx-intro-loop" loop preload="auto"><source src="asset/sound/intro_ambiance.mp3" type="audio/mpeg"></audio>
+    <audio id="sfx-intro-glitch-burst" preload="auto"><source src="asset/sound/intro_glitch.mp3" type="audio/mpeg"></audio>
+    <audio id="sfx-scream" preload="auto"><source src="asset/sound/woman-screaming.mp3" type="audio/mpeg"></audio>
+    <audio id="sfx-email" preload="auto"><source src="asset/sound/email.mp3" type="audio/mpeg"></audio>
+    <audio id="sfx-camera" preload="auto"><source src="asset/sound/camera_open.mp3" type="audio/mpeg"></audio>
+    <audio id="sfx-thump" preload="auto"><source src="asset/sound/heavy_thump.mp3" type="audio/mpeg"></audio>
+    <audio id="sfx-door" preload="auto"><source src="asset/sound/door_knock.mp3" type="audio/mpeg"></audio>
+    <audio id="sfx-breath" loop preload="auto"><source src="asset/sound/breathing_loop.mp3" type="audio/mpeg"></audio>
+    <audio id="sfx-static" loop preload="auto"><source src="asset/sound/tv_static.mp3" type="audio/mpeg"></audio>
+
+        <section id="scene-intro" class="scene active">
+            <div id="blood-splatter-1" class="blood-splatter"></div>
+            <div id="blood-splatter-2" class="blood-splatter"></div>
+            <div id="intro-glitch-effect"></div>
+            <div id="intro-particles"></div>
+            
+            <div class="intro-content">
+                <h1 id="intro-title" class="glitch-text-animated">SESSION_LEA</h1>
+                <p id="intro-subtitle">UN JEU D'HORREUR EXPÉRIMENTAL</p>
+                <button id="btn-start-game" class="btn-retro">
+                    > JOUER_
+                </button>
+                <div class="intro-footer">
+                    <div class="footer-left">© CLS Studio</div>
+                    <div class="footer-right">Horreur psychologique // Version 1.0</div>
+                </div>
+            </div>
+        </section>
+
+    <section id="scene-login" class="scene hidden">
+        <div class="login-box">
+            <div class="avatar-container">
+                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=200" id="user-avatar">
+            </div>
+            <h2 id="login-user">Léa</h2>
+            <div class="login-input-group">
+                <input type="password" id="inp-pass" placeholder="Mot de passe..." autocomplete="off">
+                <button id="btn-login">➜</button>
+            </div>
+            <div id="login-msg"></div>
+            <div id="hint-box" class="hidden">Indice : Rex + Année (2012)</div>
+        </div>
+    </section>
+
+    <section id="scene-desktop" class="scene hidden">
+        
+        <div class="dock">
+            <div id="icon-word" class="dock-item" onclick="openWindow('win-word')" title="Devoirs">
+                <i class="fa-solid fa-file-word blue"></i>
+            </div>
+            <div id="icon-gallery" class="dock-item locked" onclick="openWindow('win-gallery')" title="Photos">
+                <i class="fa-solid fa-images purple"></i>
+            </div>
+            <div id="icon-email" class="dock-item locked" onclick="openWindow('win-email')" title="Emails">
+                <i class="fa-solid fa-envelope"></i>
+                <div id="badge-email" class="badge hidden">!</div>
+            </div>
+            <div id="icon-iscord" class="dock-item" onclick="openWindow('win-iscord')" title="Iscord">
+                <i class="fa-brands fa-discord blurple"></i>
+                <div id="badge-iscord" class="badge hidden">!</div>
+            </div>
+            <div id="icon-terminal" class="dock-item locked" onclick="openWindow('win-terminal')" title="Terminal">
+                <i class="fa-solid fa-terminal gray"></i>
+            </div>
+            <div id="icon-browser" class="dock-item locked" onclick="openWindow('win-browser')" title="Navigateur">
+                <i class="fa-brands fa-chrome"></i>
+                <div id="badge-web" class="badge hidden">!</div>
+            </div>
+            <div id="icon-camera" class="dock-item red locked" onclick="openWindow('win-camera')" title="Webcam">
+                <i class="fa-solid fa-video"></i>
+            </div>
+        </div>
+
+        <div id="win-word" class="window hidden" style="top:10%; left:10%; width:600px; height:500px;">
+            <div class="title-bar">
+                <span>Dissertation_Philo.docx</span>
+                <button class="close" onclick="closeWin('win-word')">×</button>
+            </div>
+            <div class="window-body white-bg">
+                <div class="word-page">
+                    <h3>Sujet : La conscience survit-elle à la matière ?</h3>
+                    <p><strong>Introduction :</strong></p>
+                    <p>La question de l'âme a toujours fasciné. Si je télécharge mon esprit dans une machine, suis-je toujours moi ? Ou juste une copie ?</p>
+                    <p>Je me sens bizarre ces temps-ci. J'ai l'impression d'être observée, même quand mon écran est éteint.</p>
+                    <br>
+                    <p class="handwritten">Note : Ne pas oublier de nourrir Rex.</p>
+                    <br><br>
+                    <p id="ghost-text" class="hidden" style="color:red; font-weight:bold; font-family:monospace;">POURQUOI TU AS CLIQUÉ SUR CE LIEN ?</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="win-gallery" class="window hidden" style="top:15%; left:30%; width:700px;">
+            <div class="title-bar">
+                <span>Galerie Photos</span>
+                <button class="close" onclick="closeWin('win-gallery')">×</button>
+            </div>
+            <div class="window-body dark-bg grid-gallery">
+                <div class="photo-thumb" onclick="viewPhoto('asset/stalker_photo.jpg', 'Photo prise hier soir...')">
+                    <img src="asset/stalker_photo.jpg">
+                    <span>IMG_003.jpg</span>
+                </div>
+                <div class="photo-thumb" onclick="viewPhoto('https://images.unsplash.com/photo-1517438476312-10d79c077509?q=80&w=200', 'Je ne connais pas cette personne.')">
+                    <img src="https://images.unsplash.com/photo-1517438476312-10d79c077509?q=80&w=200">
+                    <span>CORRUPT_DATA.jpg</span>
+                </div>
+            </div>
+            <div id="photo-viewer" class="hidden">
+                <div class="viewer-content">
+                    <img id="viewer-img" src="">
+                    <p id="viewer-caption"></p>
+                    <button onclick="document.getElementById('photo-viewer').classList.add('hidden')">Fermer</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="win-terminal" class="window hidden" style="top:20%; left:20%; width:650px; height:450px;">
+            <div class="title-bar">
+                <span>CMD.exe - Administrator Mode</span>
+                <button class="close" onclick="closeWin('win-terminal')">×</button>
+            </div>
+            <div class="window-body black-bg terminal-font">
+                <div id="term-output">
+                    Microsoft Windows [version 10.0.19045]<br>
+                    (c) Corporation. Tous droits réservés.<br><br>
+                    SYSTEM STATUS: <span style="color:red">COMPROMISED</span><br>
+                    C:\Users\Lea> Tapez 'help' pour la liste des commandes.<br><br>
+                </div>
+                <div class="term-input-line">
+                    <span>C:\Users\Lea></span>
+                    <input type="text" id="term-input" autocomplete="off" autofocus>
+                </div>
+            </div>
+        </div>
+
+        <div id="win-email" class="window hidden" style="top:18%; left:12%; width:600px; height:500px;">
+            <div class="title-bar">
+                <span>Mail - Inbox</span>
+                <button class="close" onclick="closeWin('win-email')">×</button>
+            </div>
+            <div class="window-body dark-bg email-body">
+                <div id="email-list" class="email-list"></div>
+                <div id="email-view" class="email-view">
+                    <div class="email-header">
+                        <div id="email-subject" class="email-subject">Aucun message sélectionné</div>
+                        <div id="email-sender" class="email-sender"></div>
+                        <button id="btn-reply-mom" class="reply hidden" title="Répondre" onclick="replyToMom()">↩</button>
+                    </div>
+                    <div id="email-content" class="email-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="win-iscord" class="window hidden" style="top:12%; left:50%; width:500px; height:550px;">
+            <div class="title-bar" style="background:#5865f2">
+                <span>Iscord - Thomas ❤️</span>
+                <div>
+                    <button class="close" onclick="closeWin('win-iscord')">×</button>
+                </div>
+            </div>
+            <div class="window-body dark-bg iscord-body">
+                <div id="chat-contacts" class="chat-contacts"></div>
+                <div id="chat-panel" class="chat-panel">
+                    <div id="chat-history"></div>
+                    <div id="chat-choices" class="hidden"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="win-camera" class="window hidden" style="top:5%; left:5%; width:550px;">
+             <div class="title-bar">
+                 <span>REC - CAM_01</span>
+                 <button class="close" onclick="closeWin('win-camera')">×</button>
+             </div>
+             <div class="window-body black-bg no-pad">
+                 <video id="villain-video" src="asset/villain.mp4" loop muted playsinline></video>
+                 <div class="rec-dot">● REC</div>
+             </div>
+        </div>
+
+    </section>
+
+    <div id="toast-container"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+        <div id="win-browser" class="window hidden" style="top:16%; left:25%; width:700px; height:520px;">
+            <div class="title-bar">
+                <span>Guggle // Recherche</span>
+                <button class="close" onclick="closeWin('win-browser')">×</button>
+            </div>
+            <div class="window-body dark-bg browser-body">
+                <div class="search-bar">
+                    <input type="text" id="web-search" placeholder="Rechercher..." autocomplete="off">
+                    <button id="web-go">➜</button>
+                </div>
+                <div id="web-results" class="results"></div>
+                <div id="web-view" class="web-view hidden"></div>
+            </div>
+        </div>
+
+        <div id="win-police" class="window hidden" style="top:14%; left:60%; width:420px; height:520px;">
+            <div class="title-bar" style="background:#1e3a8a">
+                <span>Police 17</span>
+                <button class="close" onclick="closeWin('win-police')">×</button>
+            </div>
+            <div class="window-body dark-bg police-body">
+                <div class="police-actions"><button id="btn-call-17" class="btn-call" onclick="startPoliceCall()">Appeler Police 17</button></div>
+                <div id="police-history"></div>
+                <div id="police-choices" class="hidden"></div>
+            </div>
+        </div>
+        <div id="quest-panel" class="quest-panel hidden">
+            <div class="quest-header">Quêtes</div>
+            <ul id="quest-list"></ul>
+        </div>
