@@ -1,0 +1,38 @@
+SESSION_LEA — Guide de progression par chapitres
+
+Général
+- Mot de passe de connexion: Rex2012
+- Code de décryptage final: 1411
+- Les applications se débloquent au fur et à mesure des objectifs remplis.
+
+Chapitre I — L’Anomalie
+1) Ouvrir Iscord depuis le dock.
+2) Ouvrir le contact “Thomas ❤️” et répondre à son premier message (choix libre).
+3) Ouvrir le contact “Camille” et lui répondre (choix “Ça va, je verrouille tout.” ou “J’ai peur, je vais appeler.”).
+→ Résultat: la caméra se débloque.
+
+Chapitre II — Surveillance
+4) Ouvrir la Webcam depuis le dock (visionner une fois).
+5) Ouvrir Emails (au moins une fois pour valider l’objectif “Consulter les emails”).
+6) Ouvrir le Navigateur et rechercher pour trouver la page “Journal de Léa”.
+   - Requêtes utiles: session, lea
+→ Résultat: la Galerie se débloque.
+
+Chapitre III — Indices
+7) Ouvrir la Galerie et afficher la photo corrompue (le code 1411 apparaît).
+8) Dans le Navigateur, continuer à chercher des indices si besoin.
+   - Requêtes utiles: villain, caméra, 1411, erreur, crypt, décrypt, rex 2012
+9) Ouvrir le Terminal et exécuter: decrypt 1411
+→ Résultat: lancement de l’antivirus; à 100%, révélation finale puis crédits.
+
+Notes
+- Police 17: optionnel (bouton “17” dans Iscord ou commande “call 17” dans le Terminal). N’influence pas la résolution des chapitres.
+- Terminal — commandes utiles:
+  - help: liste des commandes
+  - scan, list, whoami, status, hint
+
+Flux recommandé
+Iscord → Caméra → Emails → Navigateur → Galerie → Terminal
+
+Crédits
+- CLS Studio — Design, Développement, Histoire, Musique

@@ -1,0 +1,53 @@
+SESSION_LEA — Lore et Résolution des énigmes
+
+Univers
+- Léa étudie tard, seule. Des anomalies apparaissent dans son “bureau” numérique.
+- Un intrus (“INCONNU”) infiltre les échanges, la caméra et les fichiers.
+- Thomas tente d’aider, Camille conseille la prudence, Prof Philo oriente vers des indices.
+
+Chapitres
+- Chapitre I — Anomalie: Ouvrir Iscord, parler avec Thomas, voir les premiers signes.
+- Chapitre II — Surveillance: Ouvrir la webcam; les événements hostiles démarrent.
+- Chapitre III — Indices: Utiliser le navigateur et la galerie pour trouver le code.
+- Chapitre IV — Vérité: Décrypter le fichier final au terminal.
+
+Personnages
+- Thomas: ami proche; signale une silhouette; pousse à vérifier la caméra.
+- Camille: amie; insiste pour rester à l’intérieur; suggère d’appeler la police.
+- Prof Philo: mentor; parle du “moi numérique”; oriente vers le Journal de Léa et la galerie.
+- INCONNU: antagoniste; messages menaçants; prise de contrôle de webcam/chat.
+
+Énigmes et Solutions
+1) Terminal
+- help: affiche les commandes.
+- scan: simule une analyse; indique la compromission de la webcam.
+- list: montre un répertoire caché.
+- whoami/status: renforcent le lore (“identité corrompue”).
+- decrypt [code]: déchiffre le fichier final avec le bon code.
+
+2) Navigateur
+- Requêtes utiles: “session”, “lea”, “villain”, “caméra”, “1411”, “erreur”, “crypt”, “décrypt”, “rex 2012”.
+- Journal de Léa: premier jalon narratif, renvoie vers “caméra”.
+- Surveillance: indique la compromission; renvoie vers “1411”.
+- Erreur #1411: confirme la piste; renvoie vers “crypte”.
+- CRYPTE-X: explique le décryptage; renvoie vers “rex 2012”.
+- Rex: renvoie vers “session lea”.
+
+3) Galerie
+- Ouvrir la photo corrompue: le code “1411” apparaît (indices visuels et post‑it).
+
+4) Police
+- Accessible via bouton “17” dans Iscord ou commande “call 17”.
+- Sert de renfort narratif; pas obligatoire pour résoudre les énigmes.
+
+Code final
+- 1411.
+- Commande: decrypt 1411.
+- Déclenche la révélation (“Tu n’es pas enfermée avec moi…”) et l’écran de fin.
+
+Conseils de progression
+- Iscord → Caméra → Emails/Navigateur → Galerie → Terminal.
+- Surveille les post‑it et les messages INCONNU pour les indices.
+
+Crédits
+- CLS Studio — Design, Développement, Histoire, Musique.
